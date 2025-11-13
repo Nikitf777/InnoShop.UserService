@@ -1,11 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS builder
-WORKDIR /src
-COPY *.csproj .
-RUN dotnet restore
-COPY . .
-RUN dotnet publish -c Release -o /app
-
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
-COPY --from=builder /app .
+COPY ./bin/Release/net10.0/publish .
 ENTRYPOINT ["dotnet", "./InnoShop.UserService.dll"]
