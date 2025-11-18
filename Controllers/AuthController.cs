@@ -21,13 +21,13 @@ public class AuthController(IAuthService authService, IJwtTokenService tokenServ
 	[HttpPost("login")]
 	public async Task<IActionResult> Login([FromBody] LoginRequest request)
 	{
-		var (isValid, _) = await this.authService.ValidateUserAsync(request.Email, request.Password);
+		var (isValid, role) = await this.authService.ValidateUserAsync(request.Email, request.Password);
 
 		if (!isValid) {
 			return this.Unauthorized();
 		}
 
-		var token = this.tokenService.GenerateToken(request.Email);
+		var token = this.tokenService.GenerateToken(request.Email, role);
 		return this.Ok(new { Token = token });
 	}
 }
@@ -36,16 +36,16 @@ public class RegisterRequest
 {
 	[StringLength(40, ErrorMessage = ErrorMessages.NameTooLong)]
 	public string Name { get; set; } = "";
-	[StringLength(60, ErrorMessage = ErrorMessages.EmailTooLong)]
+	[StringLength(80, ErrorMessage = ErrorMessages.EmailTooLong)]
 	public string Email { get; set; } = "";
-	[StringLength(100, ErrorMessage = ErrorMessages.PasswordTooLong)]
+	[StringLength(80, ErrorMessage = ErrorMessages.PasswordTooLong)]
 	public string Password { get; set; } = "";
 }
 
 public class LoginRequest
 {
-	[StringLength(60, ErrorMessage = ErrorMessages.EmailTooLong)]
+	[StringLength(80, ErrorMessage = ErrorMessages.EmailTooLong)]
 	public string Email { get; set; } = "";
-	[StringLength(100, ErrorMessage = ErrorMessages.PasswordTooLong)]
+	[StringLength(80, ErrorMessage = ErrorMessages.PasswordTooLong)]
 	public string Password { get; set; } = "";
 }

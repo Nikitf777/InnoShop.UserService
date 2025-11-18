@@ -6,7 +6,7 @@ namespace InnoShop.UserService.Services;
 public interface IAuthService
 {
 	public Task RegisterUserAsync(string name, string email, string password);
-	public Task<(bool isValid, List<string> roles)> ValidateUserAsync(string email, string password);
+	public Task<(bool isValid, string role)> ValidateUserAsync(string email, string password);
 }
 
 public class AuthService(IUserRepository userRepository) : IAuthService
@@ -18,19 +18,19 @@ public class AuthService(IUserRepository userRepository) : IAuthService
 		await this.userRepository.InsertUserAsync(new User { Name = name, Email = email, PasswordHash = PasswordHasher.HashPassword(password) });
 	}
 
-	public async Task<(bool isValid, List<string> roles)> ValidateUserAsync(string email, string password)
+	public async Task<(bool isValid, string role)> ValidateUserAsync(string email, string password)
 	{
 		var user = await this.userRepository.FetchByEmailAsync(email);
 		if (user == null) {
-			return (false, []);
+			return (false, string.Empty);
 		}
 
 		var isValid = PasswordHasher.VerifyPassword(password, user.PasswordHash);
 
 		if (!isValid) {
-			return (false, []);
+			return (false, string.Empty);
 		}
 
-		return (true, user.Roles ?? []);
+		return (true, user.Role);
 	}
 }

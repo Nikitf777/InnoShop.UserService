@@ -7,19 +7,19 @@ namespace InnoShop.UserService.Services;
 
 public interface IJwtTokenService
 {
-	public string GenerateToken(string email);
+	public string GenerateToken(string email, string role);
 }
 
 public class JwtTokenService : IJwtTokenService
 {
-	public string GenerateToken(string email)
+	public string GenerateToken(string email, string role)
 	{
 		var handler = new JsonWebTokenHandler();
 
 		var claims = new List<Claim>
 		{
 			new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-			new(JwtRegisteredClaimNames.Sub, email),
+			new(ClaimTypes.Role, role),
 			new(JwtRegisteredClaimNames.Email, email),
 		};
 
