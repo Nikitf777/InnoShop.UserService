@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using InnoShop.UserService.Exceptions;
 using InnoShop.UserService.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,13 +22,8 @@ public class AuthController(IAuthService authService, IJwtTokenService tokenServ
 	[HttpPost("login")]
 	public async Task<IActionResult> Login([FromBody] LoginRequest request)
 	{
-		var (isValid, role) = await this.authService.ValidateUserAsync(request.Email, request.Password);
-
-		if (!isValid) {
-			return this.Unauthorized();
-		}
-
-		var token = this.tokenService.GenerateToken(request.Email, role);
+		var user = await this.authService.ValidateUserAsync(request.Email, request.Password);
+		var token = this.tokenService.GenerateToken(user.Id, request.Email, user.Role);
 		return this.Ok(new { Token = token });
 	}
 }

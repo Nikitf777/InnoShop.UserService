@@ -14,6 +14,7 @@ public class GlobalExceptionHandler()
 		httpContext.Response.StatusCode = exception switch {
 			NotFoundException => StatusCodes.Status404NotFound,
 			UserExistsException => StatusCodes.Status409Conflict,
+			WrongCredentialsException => StatusCodes.Status401Unauthorized,
 			_ => StatusCodes.Status500InternalServerError,
 		};
 

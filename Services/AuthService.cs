@@ -1,12 +1,13 @@
 using InnoShop.UserService.Repositories;
 using InnoShop.UserService.Models;
+using InnoShop.UserService.Exceptions;
 
 namespace InnoShop.UserService.Services;
 
 public interface IAuthService
 {
 	public Task RegisterUserAsync(string name, string email, string password);
-	public Task<(bool isValid, string role)> ValidateUserAsync(string email, string password);
+	public Task<User> ValidateUserAsync(string email, string password);
 }
 
 public class AuthService(IUserRepository userRepository) : IAuthService
@@ -18,19 +19,14 @@ public class AuthService(IUserRepository userRepository) : IAuthService
 		await this.userRepository.InsertUserAsync(new User { Name = name, Email = email, PasswordHash = PasswordHasher.HashPassword(password) });
 	}
 
-	public async Task<(bool isValid, string role)> ValidateUserAsync(string email, string password)
+	public async Task<User> ValidateUserAsync(string email, string password)
 	{
-		var user = await this.userRepository.FetchByEmailAsync(email);
-		if (user == null) {
-			return (false, string.Empty);
+		var user = await this.userRepository.FetchByEmailAsync(email) ?? throw new WrongCredentialsException("Wrong email or password.");
+
+		if (!PasswordHasher.VerifyPassword(password, user.PasswordHash)) {
+			throw new WrongCredentialsException("Wrong email or password.");
 		}
 
-		var isValid = PasswordHasher.VerifyPassword(password, user.PasswordHash);
-
-		if (!isValid) {
-			return (false, string.Empty);
-		}
-
-		return (true, user.Role);
+		return user;
 	}
 }
