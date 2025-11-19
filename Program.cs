@@ -15,6 +15,7 @@ using (var context = new UserContext()) {
 			Email = "admin@innoshop.com",
 			PasswordHash = PasswordHasher.HashPassword("admin"),
 			Role = Roles.Admin,
+			EmailConfirmed = true,
 		});
 
 		_ = context.SaveChanges();
@@ -22,6 +23,8 @@ using (var context = new UserContext()) {
 }
 
 var builder = WebApplication.CreateBuilder(args);
+
+var configuration = builder.Configuration;
 
 builder.Services
 	.AddAuthorization()
@@ -36,6 +39,10 @@ builder.Services
 		ValidateAudience = true,
 
 	});
+
+builder.Services.Configure<EmailConfiguration>(
+	builder.Configuration.GetSection(nameof(EmailConfiguration))
+);
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
