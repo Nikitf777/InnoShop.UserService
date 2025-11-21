@@ -14,8 +14,8 @@ using (var context = new UserContext()) {
 			Name = "admin",
 			Email = "admin@innoshop.com",
 			PasswordHash = PasswordHasher.HashPassword("admin"),
-			Role = Roles.Admin,
 			EmailConfirmed = true,
+			Role = Roles.Admin,
 		});
 
 		_ = context.SaveChanges();
